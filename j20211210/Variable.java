@@ -6,6 +6,7 @@ public class Variable {
 
         int a = 5;
         String b ="Lunch";
+        
         System.out.println(a);
     }
 }
