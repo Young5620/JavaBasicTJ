@@ -5,14 +5,14 @@ public class TernaryExam {
         // int b1 = (5>4) ? 50 : 40;
         // System.out.println(b1);
 
-        int b;
+        int a;
 
         if(5>4) {
-            b = 50;
-        } else{
-            b = 40;
+            a = 50;
+        } else if(5<4) {
+            a = 40;
             }
-        System.out.println(b);
+        System.out.println(a);
 
         //* Variable 
         //1) local variable - 지역변수
