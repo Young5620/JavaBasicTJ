@@ -120,7 +120,7 @@ System.out.printf("age:%d%n year:%d",age,year);
 //		System.out.println("x = " + x);
 //		System.out.println("y = " + y);
 		
-//		int x = 10;
+//		int x = 10; //정열할 때 자주쓰임
 //		int y = 20;
 //		int temp; //임시변수 추가가 필요하다.
 //		temp = x; //temp 10 x 10 y 20
