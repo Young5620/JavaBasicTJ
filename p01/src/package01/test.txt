@@ -48,7 +48,7 @@ String x = name + "의 나이는 " + age;
 메모리(ram)에 있는 변수들의 값을 cpu가 가지고 와서 결합연산을 하여 다시 메모리에 저장한다.
 
 
-Scanner sc = new Scanner(System.in); 
+Scanner sc = new Scanner(System.in); 키보드입력을 콘솔을 통해 받을 수 있는 Scanner 객체 sc를 생성한다.
 System.out.println("이름을 입력하세요>>"); -1
 String name = sc.next();              -2
 System.out.println("나이를 입력하세요>>");
@@ -56,7 +56,7 @@ String age = sc.nextInt();         -3
 
 1. 화면에 사용자로 하여금 입력하도록 프롬프트를 출력한다.
 2. 사용자가 콘솔에서 스트링(문자열)으로 입력한 값을 변수 name에 저장
-3. 입력한 스트일(문자) 나이 데이터를 정수로 변경하여 age변수에 저장
+3. 입력한 스트링(문자)나이 데이터를 정수로 변경하여 변수 age에 저장
 
 
 String h = "안녕하세요"; //한들은 1글자가 2byte
