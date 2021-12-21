@@ -113,21 +113,63 @@ public class ArrayExam {
 //		System.out.println("최대값 : " + max + " 최소값 : " + min);
 		
 		
-		int[] scores = {78,88,98,90,96,67,65,87};
-		//scores = {87,65,67,96,90,98,88,78}
-		int[] tmp = new int[scores.length];
+//		int[] scores = {78,88,98,90,96,67,65,87};
+//		//scores = {87,65,67,96,90,98,88,78}
+//		int[] tmp = new int[scores.length];
+//		
+//		for (int i = 0 ; i<scores.length; i++) {
+//			tmp[i] = scores[scores.length-i-1];
+//		}
+//		scores = tmp;
+//		System.out.println(scores);
+//		
+//		for(int item : scores) {
+//			System.out.print(item + " ");
+//		}
 		
-		for (int i = 0 ; i<scores.length; i++) {
-			tmp[i] = scores[scores.length-i-1];
+		
+		//quiz 444657953
+		//0의개수: 1의개수: 2의개수: ...
+//		int[] arr = {4,4,4,6,5,7,9,7,5,3};
+//		int[] counter = new int[10];
+//		for(int i =0; i<arr.length; i++) {
+//			counter[arr[i]]++;
+//			//counter[arr[i]] = counter[arr[i]] + 1;
+//		}
+//		for(int j = 0; j<counter.length; j++) {
+//			System.out.println(j+"의 갯수: " + counter[j]);;
+//		}
+		
+//		String[] name = new String[3]; //길이가 3인 String배열 생성
+//		name[0] = "Kim";
+//		name[1] = "Song";
+//		name[2] = "Park";
+//		
+//		String[] name2 = {"Kin","Sing","Park"}; //생략
+//		String[] name3 = new String[] {"Kin","Sing","Park"}; //정석
+//		
+//		for(int i =0; i<name.length; i++) {
+//			System.out.println("name[" + i + "] = " + name[i]);
+//		}
+//		for(String each:name) {
+//			System.out.print(each + " ");
+//		}
+		
+		// char배열과 String배열 변환
+//		char[] chArr = {'A', 'B', 'C'};
+//		String str = new String(chArr); //char배열을 스트링으로
+//		System.out.println(str); //스트링을 char배열로
+//		
+//		char[] tmp = str.toCharArray();// 임시변수를 잡아서 str를 char형으로 바꿈
+		
+		//quiz src라는 String에 "ABCDE"을 만들어 chArr이라는 char[]로 변환하여 출력
+		String src = "ABCDE";
+		//char[] tmp = src.toCharArray();
+		for(int i = 0; i<src.length(); i++) {
+			char ch = src.charAt(i);
+			System.out.println("src.charAt("+ i+"): " + ch);
 		}
-		scores = tmp;
-		System.out.println(scores);
-		
-		for(int item : scores) {
-			System.out.print(item + " ");
+		//System.out.println(tmp);
 		}
-		
-		
-	}
 
 }
