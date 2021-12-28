@@ -29,7 +29,7 @@
             <li><a class="dropdown-item" href="#">회원탈퇴</a></li>
             <li><hr class = "dropdown-divider"></li>
             <li><a class="dropdown-item" href="login.html">로그인</a></li>
-            <li><a class="dropdown-item" href="#">로그아웃</a></li>
+            <li><a class="dropdown-item" href="logout.jsp">로그아웃</a></li>
           </ul>
         </li>
       </ul>

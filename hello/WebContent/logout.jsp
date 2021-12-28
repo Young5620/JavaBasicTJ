@@ -7,13 +7,9 @@
 <title>Insert title here</title>
 </head>
 <body>
-<%@ include file="_header.jsp" %>
 <%
-	String uid = (String) session.getAttribute("id");
-	if(uid == null){
-		response.sendRedirect("login.html");
-	}
+	session.invalidate();
+	out.print("로그아웃하였습니다.");
 %>
-<h1>Hello World 홍길동</h1>
 </body>
 </html>

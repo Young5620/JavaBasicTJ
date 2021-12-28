@@ -9,9 +9,15 @@
 </head>
 <body>
 <%@ include file = "_header.jsp"%>
+<%
+	String uid = (String) session.getAttribute("id");
+	if(uid == null){
+		response.sendRedirect("login.html");
+	}
+%>
 <main>
 <div class="alert alert-primary" role="alert">
-  메인페이지
+ 
 </div>
 </main>
 <%@ include file = "_footer.jsp"%>
