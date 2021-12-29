@@ -15,11 +15,11 @@ String dbps = "0000";
 if(ups.equals(dbps)){
 	session.setAttribute("id", uid);
 	out.print("로그인성공");
-	response.sendRedirect("index.html");
+	response.sendRedirect("main.jsp");
 }
 else {
 	out.print("비밀번호가 틀렸습니다");
-	response.sendRedirect("login.jsp");
+	response.sendRedirect("login1.html");
 }
 %>
 <%@ include file = "_footer.jsp"%>
