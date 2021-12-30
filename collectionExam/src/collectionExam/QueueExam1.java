@@ -51,7 +51,7 @@ public class QueueExam1 {
 						System.out.println(++i+"."+it.next());
 					}
 				}
-				}else {
+				else {
 					save(input);
 					System.out.println(input);
 				}
@@ -60,6 +60,5 @@ public class QueueExam1 {
 				System.out.println("입력오류");
 		}
 	}
-}
 }
 }
