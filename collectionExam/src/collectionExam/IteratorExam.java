@@ -20,9 +20,7 @@ public class IteratorExam {
 		list.add("4");
 		list.add("5");
 		
-		while(list.hasNext()) {
-			
-		}
+		
 		
 }
 }

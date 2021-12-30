@@ -1,3 +1,4 @@
+<%@page import="dao.UserDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -10,7 +11,10 @@
 <%
 	String uid = request.getParameter("id");
 	String ups = request.getParameter("ps");
+	
 	String dbps = "0000";
+	UserDAO dao = new UserDAO();
+	
 	if(ups.equals(dbps)){
 		session.setAttribute("id", uid); //세션에 저장 유저아이디
 		out.print("로그인성공");
