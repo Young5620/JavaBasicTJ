@@ -1,4 +1,4 @@
-<%@page import="dao.UserDAO"%>
+<%@page import="dao.MemberDAO"%>
 <%@page import="java.sql.Statement"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.Connection"%>
@@ -18,12 +18,12 @@
 	/* Class.forName("com.mysql.jdbc.Driver");
 	//2.DB연결
 	Connection conn = DriverManager.getConnection(
-			"jdbc:mysql://localhost:3306/test","root","0000"); */
+	"jdbc:mysql://localhost:3306/test","root","0000"); */
 	//3.SQL구문
 	/* Statement stmt = conn.createStatement(); */
 	//4.결과받기
 	
-	UserDAO dao = new UserDAO();
+	MemberDAO dao = new MemberDAO();
 	int count = dao.insert(uid,ups,una);
 	/* int count = stmt.executeUpdate(sql); */
 	if(count == 1){

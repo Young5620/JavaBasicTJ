@@ -1,4 +1,4 @@
-<%@page import="dao.UserDAO"%>
+<%@page import="dao.MemberDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -13,7 +13,7 @@
 	String ups = request.getParameter("ps");
 	
 	String dbps = "0000";
-	UserDAO dao = new UserDAO();
+	MemberDAO dao = new MemberDAO();
 	
 	if(ups.equals(dbps)){
 		session.setAttribute("id", uid); //세션에 저장 유저아이디
