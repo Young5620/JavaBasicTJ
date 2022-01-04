@@ -232,3 +232,172 @@ NOT !=같지않다. <> 같지않다.(ISO표준)
 SELECT * 
 FROM employees
 WHERE job_id <> 'IT_PROG';
+
+
+# 함수
+입력 -> 함수 -> 출력
+input       output
+딸기 -> 믹서기 -> 딸기주스
+x = 2 -> y = 2x + 1 -> y = 5
+
+1. 데이터값을 계산하거나 조작한다.
+2. 행의 그룹에 대해 계산하거나 요약한다.
+
+함수에는 단일행 함수와 그룹함수가 있다. 
+단일행함수: 한번에 하나만 처리 (a1값을 처리하고 a2값을 처리)
+그룹함수: 동시에 대상 열 전체 처리 (d1,d2,d3,d4 동시에 입력받아서 평균, 합계 등을 출력한다.)
+그룹함수는 GROUP BY 절과 함께 사용된다.
+
+단일행함수에 많이 사용되는 데이터타입을 보면
+CHAR(n)문자,고정길이
+VARCHAR(n)문자,가변길이
+NUMBER() 숫자타밍
+DATE날짜타입
+단일행함수들은 테이블에 존재하는 많은 행들이 한번에 하나씩만 입력되어 하나씩 처리되는 함수이다.
+1.각 행에 대해 수행한다.
+2.각 데이터타입에 맞는 함수를 사용해야한다.
+3.행별로 하나의 결과를 반환한다.
+4.중첩해서 사용할 경우 가장 안쪽단계에서 바깥쪽 단계로 진행된다.
+
+문자타입함수는 주로 데이터 조작에 쓰이고 문자나 문자열데이터는 작은 따옴표('')를 사용하여 표현한다.
+
+lower() 값을 소문자로 변환한다.
+	lower('ABCD') -> abcd
+upper() 값을 대문자로 변환한다.
+	upper('abcd') -> ABCD
+initcap() 첫글자만 대문자로 변환한다.
+	initcap('abcd') -> Abcd
+substr() 문자열들 중에서 일부분만 선택한다.
+	substr('ABC',1,2) -> AB
+replace() 특정 문자열을 찾아 바꾼다.
+	replace('AB','A','E') -> EB
+concat() 두 문자열을 연결한다.(||)
+	concat('A','B') -> AB
+length() 문자열의 길이를 구한다.
+	length('AB') -> 2
+instr() 문자의 위치를 구한다.
+	instr('ABCD','D') 0 -> 4
+lpad() 왼쪽부터 특정문자로 자리를 채운다.
+	lpad('ABCD',6,*) -> **ABCD
+rpad() 오른쪽부터 특정문자로 자리를 채운다.
+	rpad('ABCD',6,*) -> ABCD**
+ltrim() 문자열의 왼쪽 문자를 지운다.
+	ltrim('ABCD','AB') -> CD (주로 여백지울때 많이 씀)
+rtrim() 문자열의 오른쪽 문자를 지운다.
+	rtrim('ABCD','CD') -> AB
+
+SELECT last_name,
+    LOWER(last_name) Lower적용,
+    UPPER(last_name) UPPER적용,
+    email,
+    INITCAP(email) INITCAP적용
+FROM employees;
+첫글자만 대문자였던 last_name열의 값이 LOWER함수를 적용하면 모두 소문자로 바뀐다.
+원래 대문자였던 email열의 값은 INITCAP함수를 적용하면 앞글자만 대문자로 바뀐다.
+
+#SUBSTR : 지정된 길이만큼 문자열 추출하기
+SELECT job_id, SUBSTR(job_id,1,2)
+FROM employees;
+SUBSTR('문자열',시작위치,길이)
+
+#lpad
+SELECT first_name, lpad(first_name,12,'*')
+FROM employees;
+
+employees테이블에서 job_id의 값에 대해 왼쪽 방향부터 "f"를 만나면 삭제
+SELECT job_id, 
+    LTRIM(job_id,'F')
+FROM employees;
+
+TRIM : 공백을 모두 제거
+문자열의 중간의 여백은 제거 불가
+
+DUAL table dummy라는 하나의 열과 x데이터 값을 갖고 있는 테이블이다. 
+별 의미없이 테이블을 문법적으로 지정해야만 할 때 사용하는 테이블이다.
+
+
+#숫자 타입함수
+숫자타입함수들은 주로 숫자를 계산하거나 계산이 끝난 뒤에 추가로 가공처리를 할 때 사용한다.
+round 반올림
+round(15.351,0) -> 15
+round(15.751,0) -> 16
+trunc 숫자를 절삭한다.
+trunc(15.351,1) -> 15.3
+mod 나누고 난 뒤 나머지만 취한다. 홀수,짝수,배수를 알 수 있다.
+mod(15,2) -> 1
+sign 양수(1) 0 음수(-1) 인지를 구분한다.
+sign(15) -> 1
+
+
+반올림 round
+1   2  3 . 4 5 6  숫자
+-3 -2 -1   1 2 3 번째
+SELECT salary,
+	salary/30 일급
+FROM employees;
+SELECT salary,
+    ROUND (salary/30,-1) MINUS1적용,
+    ROUND (salary/30,1) PLUS1적용,
+	ROUND (salary/30,0) ZERO0적용,
+    salary/30 일급
+FROM employees;
+
+
+trunc: 지정한 숫자 자리에서 숫자를 절삭(버림)
+SELECT salary,
+    TRUNC(salary/30,-1) MINUS1적용,
+    TRUNC(salary/30,1) PLUS1적용,
+	TRUNC(salary/30,0) ZERO0적용,
+    salary/30 일급
+FROM employees;
+
+
+
+--변환함수--
+각 열에 대해 데이터 타입을 규정하고 있다.
+따라서 SQL문을 실행하기 위해 데이터 값의 타입을 변환해야 할 때도 있다.
+데이터베이스 시스템에 의해 자동으로(암시적으로) 또는 사용자에 의해 수동적으로(명시적으로)실행 될 수 있다.
+
+자동형변환
+VARCHAR or CHAR -> NUMBER
+VARCHAR or CHAR -> DATE
+
+SELECT 1+'2'
+FROM dual;
+2는 작은 따옴표로 묶여 있으므로 숫자가 아닌 문자이지만 결과는 3이라고 나온다.
+DBMS이 계산을 위해 문자 2를 자동으로 숫자2로 변환하여 계산. 이것을 데이터베이스 시스템에 의한 자동 데이터 타입변환이라고 한다.
+그렇지만 자동 데이터 타입변환을 이용할 수 있더라도 SQL무늬 성능과 안정성을 위해 수동 데이터 타입변환을 수행하는 것이 좋다.
+
+수동 데이터 타입 변환
+TO_CHAR 숫자/문자/날짜를 VARCHAR로 변환
+TO_NUMBER 문자를 숫자로 변환
+TO_DATE 형태만 날짜인 문자열을 날짜로 변환
+SELECT TO_CHAR(SYSDATE,'YY'),
+    TO_CHAR(SYSDATE,'YYYY'),
+    TO_CHAR(SYSDATE,'MM'),
+    TO_CHAR(SYSDATE,'MON'),
+    TO_CHAR(SYSDATE,'YYYYMMDD') 응용적용1
+FROM dual;
+컴퓨터는 날짜를 숫자로 취급한다.
+SELECT TO_CHAR(SYSDATE,'HH:MI:SS PM') 시간형식,
+TO_CHAR(SYSDATE,'YYYY/MM/DD HH:MI:SS PM') 날짜시간형식
+FROM dual;
+
+TO_NUMBER : 숫자처럼 보이는 문자열을 진짜 숫자 데이터타입으로 변환하는 함수
+
+
+데이터를 조작하거나 프로그래밍할 때 자주 쓰는 함수들을 살펴보자.
+NOT NULL: 특정 열의 행에 대한 데이터 값이 없다면 데이터 값은 NULL이 된다. NULL'값이 아무것도 없다.'는 것을 나타내는 값이다.
+테이블을 만들 때 null값을 가지지 못하도록 지정할 수도 있다.
+null의 특징
+1. 함수 적용이 불가능한 값이다.
+2. 0도 아니고 공백 ' ' 도 아니다.
+3. null값을 포함하여 계산한 결과는 null이다.
+SELECT *
+FROM employees
+ORDER BY commission_pct;
+commission_pct에 대해 오름차순으로 정렬하여 출력한다. 36행부터는 null값이다.
+SELECT salary * commission_pct
+FROM employees
+ORDER BY commission_pct;
+null이 있는 36행부터는 null로 처리된다.
