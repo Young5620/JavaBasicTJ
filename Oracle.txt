@@ -247,7 +247,7 @@ x = 2 -> y = 2x + 1 -> y = 5
 단일행함수: 한번에 하나만 처리 (a1값을 처리하고 a2값을 처리)
 그룹함수: 동시에 대상 열 전체 처리 (d1,d2,d3,d4 동시에 입력받아서 평균, 합계 등을 출력한다.)
 그룹함수는 GROUP BY 절과 함께 사용된다.
-
+=======================================================================
 단일행함수에 많이 사용되는 데이터타입을 보면
 CHAR(n)문자,고정길이
 VARCHAR(n)문자,가변길이
@@ -401,3 +401,529 @@ SELECT salary * commission_pct
 FROM employees
 ORDER BY commission_pct;
 null이 있는 36행부터는 null로 처리된다.
+
+NVL(열이름, 치환값) : null값을 찾아서 특정한 값으로 바꿔준다.
+
+SELECT salary * NVL(commission_pct,1)
+FROM employees
+ORDER BY commission_pct;
+commission_pct 열의 데이터 값이 null이 아닐때는 그냥 그대로 계산되지만 null일 떄는 계산이 되지 않으므로
+NVL함수를 이용하여 null값을 1로 바꾸어 계산한다.
+
+null값은 산술계산을 할 때 논리적인 오류를 일으킬 수 있다. 예를들면 평균을 계산할 때 null값이 존재하면 결과가 null로 
+나오기 떄문에 의도에 맞게 처리(NVL)해주어야 한다.
+
+
+DECODE: 조건논리 처리 IF-THEN-ELSE-END처럼 조건 논리를 가능하게 하는 함수, SQL구문 작성할 때 매우 자주 쓰는 함수이다.
+DECODE(열이름,조건값,치환값,기본값)
+치환값: 조건에 해당
+기본값 조건에 해당하지 않는경우
+SELECT first_name, 
+    last_name,
+    department_id,
+    salary 원래급여,
+    DECODE(department_id, 60, salary*1.1,salary) 조정된급여,
+    DECODE(department_id, 60, '10%인상','미인상') 인상여부
+FROM employees;
+
+DECODE함수는 산술계산 외에 문자열 표현도 가능하고 다양한 형태로 응용하여 활용될 수 있다.
+DECODE(열이름,조건,true,false조건,true,false....) 여러 조건을 다중으로 하는 것도 가능하다.
+
+
+CASE : 복잡한 조건 논리처리 조건식을 여러개 적용해야 할때는 DECODE보다 CASE표현식을 이용하는 것이 유용하다. 
+DECODE함수는 데이터 값이 정확히 맞거나 틀린조거늘 처리하기 용이한 반면에 
+CASE함수는 조건의 범위가 다양한 경우 쉽게 처리할 수 있다.
+SELECT employee_id, first_name, last_name, salary,
+    CASE
+        WHEN salary >= 9000 THEN '상위급여'
+        WHEN salary BETWEEN 6000 AND 8999 THEN '중위급여'
+        ELSE '하위급여'
+    END AS 급여등급
+FROM employees;
+데이터 값들의 범위를 잘 모르거나 특정 조건에 맞게 출력할 때는 CASE표현식이 유용하게 사용된다.
+CASE문은 매우 다양하게 활용될 수 있는데 위와 같이 숫자로 구간 등급을 나누어 표현할 수도 있고 나이,지역,날씨 등을 구분하여
+출력할 때 응용하여 사용할 수 있다.
+
+
+RANK(DENSE_RANK, ROW_NUMBER) : 순위매기기
+순위 매기는 것은 동일하지만 사용버비 조금씩 다르다.
+공통순위가 있을 때 어떻게 할 것이냐에 따라 달라진다.
+
+RANK : 공통순위를 출력하고 그 개수만큼 건너뛰어 다음 순위를 결정한다. (1 2 2 4)
+DENSE_RANK : 공통순위를 출력하고 건너뛰지 않고 바로 다음 순위를 결정한다.(1 2 2 3)
+ROW_NUMBER : 공통순위 없이 출력한다.(1 2 3)
+
+SELECT employee_id,
+    salary,
+    RANK() OVER(ORDER BY salary DESC) RANK_급여
+FROM employees;
+
+SELECT employee_id,
+    salary,
+    DENSE_RANK() OVER(ORDER BY salary DESC) DENSE_RANK_급여
+FROM employees;
+
+SELECT employee_id,
+    salary,
+    ROW_NUMBER() OVER(ORDER BY salary DESC) ROW_NUMBER_급여
+FROM employees;
+====================================================================================
+그룹함수(집계함수) : 기준열에 대해 같은 데이터 값끼리 그룹으로 묶어 묶은 행들의 집합에 대해 그룹함수 연산을 GROUP BY절을
+이용하여 처리한다. 묶은 열들, 그룹에 대해 조건이 필요하면 HAVING절을 추가로 적용한다.
+-기본구문-
+SELECT 그룹함수(열이름)
+FROM 테이블이름
+[WHERE 조건식]
+[ORDER BY 열이름]
+
+그룹함수
+COUNT 행의 개수 (COUNT 함수는 null값도 개수를 셈. *은 전체의 의미
+SUM 합계           나머지 전부는 null제외하고 계산)
+AVG 평균
+MAX 최대값
+MIN 최소값
+STDDEV 표준편차
+VARIANCE 분산
+
+SELECT SUM(salary), AVG(salary), SUM(salary)/COUNT(salary)
+FROM employees;
+
+SELECT MAX(salary), MIN(salary)
+FROM employees;
+
+
+#GRUOP BY : 그룹으로 묶어 계산한다.
+SQL에서 같은 데이터 값을 갖는 행끼리 묶어 그룹화하여 연산한다.
+기준열을 지정하여 그룹화 하는 명령어이다.
+-기본구문-
+SELECT 기준열, 그룹함수(열이름) 4. 결과를 출력
+FROM 테이블이름                   1. 어느테이블로 접근
+[WHERE 조건식]                      2. WHERE 조건식에 맞는 데이터만 추출
+GROUP BY 열이름                   3. 같은 데이터끼리 그룹화
+[ORDER BY 열이름];                 5. 오름차순ASC 내림차순DESC 정렬
+
+GROUP BY의 특징
+1. SELECT의 기준열과 그룹함수가 같이 지정되면 GROUP BY 절의 기준열이름이 반드시 기술되어야 한다.
+2. WHERE 절을 사용하면 행을 그룹으로 묶기 전에 앞서 조건식이 적용된다.
+3. SELECT 절에 그룹함수를 사용하지 않아도 GROUP BY 절만으로도 사용할 수 있다.
+
+employees테이블에서 employee_id가 10이상인 직원에 대해 job_id별로 그룹화하여 job_id별로 총 급여, 평균급여를 구하여
+총 급여기준으로 내림차순정렬
+
+SELECT job_id, SUM(salary) AVG(salary) 
+FROM employees
+WHERE employee_id >=10
+GROUP BY job_id
+ORDER BY SUM(salary) DESC;
+
+SELECT job_id, manager_id,
+SUM(salary), AVG(salary)
+FROM employees
+WHERE employee_id >=10
+GROUP BY job_id, manager_id
+ORDER BY SUM(salary) DESC;
+
+GROUP BY 절에서 job_id, manager_id로 열이름을 순서대로 기술하여 대그룹화와 중그룹화하고 그룹화된 집합에 대해 
+그룹함수를 적용해 결과를 출력.
+즉, job_id별로 첫번째 그룹화가 되었고 여러개의 중그룹을 갖게되는 manager_id별로 총급여와 평균급여가 계산된 것을 볼 수있다.
+
+HAVING : 연산된 그룹함수 결과에 조건 적용하기
+HAVING절은 그룹화된 값에 조건식을 적용할 때 사용된다. 즉, WHERE절에서는 그룹함수를 쓸 수 없기 때문에 HAVING절을
+사용해서 그룹함수의 결과값에 대해 조건식을 적용한다. 일반적으로 GROUP BY절 다음에 기술하는 것이 논리적이고 가독성이 좋다.
+-기본구문-
+SELECT 열이름, 그룹함수(열이름)  5
+FROM 테이블이름                    1
+[WHERE 조건식]                       2
+GROUP BY 열이름                    3
+[HAVING 조건식]                     4
+[ORDER BY]                           6
+
+employees테이블에서 employee_id가 10이상인 직원에 대해 job_id별로 그룹화하여 job_id별 총급여와 평균급여를 구하는데
+job_id별 총급여가 30000보다 큰 값만 출력하세요 결과는 job_id별로 총급여를 기준으로 내림차순정렬
+
+그룹함수와 그룹화 절을 응용하면 데이터를 그룹화해서 데이터의 특성별로 분류하거나 계산할 수 있다. 
+이것을 통해 각종 리포트와 기술 통계가 가능해진다.
+
+------------------------------------------------------------------------------------------------------------------
+여러개의 테이블을 연결하기
+join이란 관계혀 데이터베이스의 테이블안에 있는 행들을 논리에 따라 연결하도록 하는 기법이다. 
+관계형 데이터베이스의 핵심요소가 조인이다.
+관계형 데이터베이스 : 테이블들이 관계를 맺고 조작되는 원리, 테이블들에는 각 유형에 맞는 데이터가 저장되어 있고 
+테이블들은 특정한 규칙에 따라 상하관계를 맺는다. 
+데이터가 테이블들에 흩어져 저장되어 있으므로 사용자가 원하는 형태로 데이터를 조작하려면 특별한 방법이 필요하다. 
+이기법이 바로 조인이다.
+조인은 한개 이상의 테이블과 테이블을 서로 연결하여 사용하는 기법이다.
+조인에는 동등조인, 외부조인, 자체조인 등을 많이 사용한다.
+1. 동등조인 : 조인조건이 정확히 일치하는 경우
+2. 외부조인 : 조인조건이 정확하지 않을 경우
+3. 자체조인 : 자체 테이블에서 조인하는 경우
+--------------------------------------------------------------------------------------------------------------------
+동등조인 : 똑같은 데이터끼리 연결
+- 가장 일반적이고 자주 쓰이는 조인 조건값이 정확하게 일치하는 경우만 가져오기 때문에 inner join, equi join 이라고 부른다.
+SELECT *
+FROM employees A, departments B
+WHERE a.department_id = b.department_id
+키로 department_id를 기준으로 조인한 결과를 볼 수 있다. 같은 값끼리 연결이 되어 조회가 되었다.
+ex) employees 테이블과 departments테이블과 locations 테이블을 조인하여 각 직원이 어느 부서에 속하는지 부서의 소재지가 어디인지 조회
+SELECT b.department_name, C.city
+FROM employees A, departments B, locations C
+WHERE A.department_id = B.department_id
+AND B.location_id = C.location_id;
+
+
+외부조인 : 모든 데이터 연결/동등조인은 데이터 값이 정확히 일치하는 경우에만 결과를 출력. 만약 데이터값이 정확히 일치하지
+않는다면 결과가 조회되지 않는다. 외부조인은 (outer join) 조건을 만족하지 않는 행도 모두 출력한다.
+외부조인의 특징
+1. 동등조인 조건을 만족하지 못해 누락되는 행을 출력하기 위해 사용한다.
+2. 외부조인은 (+)기호를 사용한다.
+3. (+)기호는 조인할 행이 없는 즉 데이터값이 부족한 테이블의 열이름 뒤에 기술한다.
+4. (+)기호는 한쪽에만 기술할 수 있다. 양쪽 모두에는 기술할 수 없다.
+5. (+)기호를 붙이면 데이터 값이 부족한 테이블에 null값을 갖는 행이 생성된다.
+
+SELECT A.department_id, A.first_name, A.last_name, B.department_id, b.department_name
+FROM employees A, departments B
+WHERE A.department_id = B.department_id (+)
+ORDER BY A.department_id
+
+외부조인은 일치하지 않는 데이터도 출력하고자 할 때 사용
+동등조인을 가장 많이 사용하지만 그 다음으로 많이 사용되는 것이 외부조인
+
+
+자체조인 : 자기 자신의 데이터와 연결
+
+employees 테이블의 직원정보 중에 manager_id열이 있다. 담당 매니저의 정보를 담고있는 열이다. 
+데이터값으로 감당매니저의 employee_id만 갖고 있으므로 담당매니저가 누구인지 인적 정보를 조회하려면 
+결국 다시 employees테이블을 조인해야 한다.
+이렇게 자기 자신 테이블을 조인하는 것을 자체조인이라 한다.
+
+SELECT A.employee_id, A.first_name, A.last_name, A.manager_id, 
+    B.first_name|| ' ' || B.last_name
+FROM employees A, employees B
+WHERE A.manager_id = B.employee_id
+ORDER BY A.employee_id
+
+자체조인의 특징
+1. 자기 자신 테이블을 이용하여 조인한다.
+2. 같은 테이블을 사용하기 때문에 각기 다른 별명을 사용하여 마치 서로 다른 두개 의 테이블을 동등조인하는 것처럼 보인다.
+3. 자체조인을 할 때 테이블은 동일한 열로 구성되어 있기 때문에 반드시 '별명.열이름'의 형태로 명확하게 구별하여 조회한다.
+
+==========================================================================================
+집합으로 연결
+지금까지는 FROM절에서 테이블들을 기술하고
+WHERE절에 조건을 기술하여 테이블을 연결하여 조회하는 방식이다.
+
+또 다른 연결방식으로 집합연산자를 이용하는 방법이 있다. SELECT문을 여러개 연결하여 작성한다.
+
+종류
+UNION 합집합 - 중복되는 행은 한번만 출력
+UNION ALL - 중복되는 행도 출력
+INTERSECT 교집합 - 중복되는 행만 출력
+MINUS 차집합 - 첫번째에서 두번째를 뺀다.
+
+
+UNION
+SELECT 문의 실행결과를 집합 하나로 만들 수 있다. 각기 다른 두 개 이상의 SELECT문을 실행한 결과를 하나로 묶어서 출력
+중복되는 행은 한번만 출력
+EX) employees 테이블의 department_id집합과 departments 테이블의 department_id 집합을 UNION연산자를 이용해 합쳐보자
+
+SELECT department_id
+FROM employees
+UNION                      중복을 삭제하고 하나만 출력한다.
+SELECT department_id
+FROM departments;
+-------------------------
+SELECT department_id
+FROM employees
+UNION ALL                 중복을 포함하여 출력한다.
+SELECT department_id
+FROM departments;
+-------------------------
+SELECT department_id
+FROM employees
+UNION ALL
+SELECT department_id
+FROM departments
+ORDER BY department_id;
+
+
+INTERSECT 양쪽 SELECT문에 모두 존재하는 데이터만 출력한다. 교집합출력
+
+SELECT department_id
+FROM employees
+INTERSECT
+SELECT department_id
+FROM departments
+ORDER BY department_id;
+
+
+MINUS 
+첫번째 SELECT문의 집합에서 두번째 SELECT문의 집합을 뺀 결과를 출력한다.
+첫번째 SELECT문의 집합에서 양쪽 테이블의 교집합을 뺀 결과와 동일하다.
+
+SELECT department_id
+FROM departments
+MINUS
+SELECT department_id
+FROM employees
+ORDER BY department_id;
+departments테이블에만 존재하는 department_id 값이라고 볼 수 있다.
+
+=============================================================================================
+<서브쿼리>
+SELECT문 안의 SELECT문
+서브쿼리는 SELECT문 안에서 보조로 사용되는 또 다른 SELECT이다. 복잡한 SELECT문을 작성할 때 거의 필수로 사용되는 기법
+
+서브쿼리의 결과를 메인쿼리가 받아서 처리하는 구조이기 때문에 중첩 nested 쿼리라고도 부른다.
+두번 작성해서 결과를 출력할 SELECT구문을 한번으로 작성해서 처리할 수 있도록 한다.
+
+특징
+1. 서브쿼리는 괄호()로 묶어서 사용한다. 메인쿼리는 묶을 필요없다.
+2. 메인과 서브를 연결하기 위해 단일행 연산자 또는 다중행 연산자를 사용한다.
+3. 메인쿼리는 연산자의 왼쪽에 기술하고 서브쿼리는 연산자의 오른쪽에 기술한다.
+4. 서브쿼리가 먼저 실행되고 메인쿼리가 실행된다.
+-------------------------------------------------------------------------------------------------------------------------------
+단일행 서브쿼리
+ - 서브쿼리 SLECT 문에서 얻은 한 개 행의 결과값을 메인쿼리로 전달하는 서브쿼리이다. 
+단일행 연산자는 하나의 행을 처리하는 연산자이고 메인쿼리와 서브쿼리가 서로 같아야 한다.
+
+SELECT *
+FROM employees A
+WHERE A.salary = (
+                    SELECT salary
+                    FROM employees
+                    WHERE last_name = 'De Haan'
+                    );
+->De Haan의 salary는 17000, 서브쿼리 결과 17000을 메이쿼리의 조건값으로 전달했고 메인쿼리는 그 값을 받아서 salary가 
+17000인 모든 직원을 출력했다.
+SELECT *
+FROM employees A
+WHERE A.salary = 17000;
+과 동일한 의미이다.
+
+SELECT *
+FROM employees 
+WHERE last_name = 'Taylor';
+
+SELECT *
+FROM employees A
+WHERE A.salary = (
+                    SELECT salary
+                    FROM employees
+                    WHERE last_name = 'Taylor'
+                    );
+-> 전달 결과가 다중행일 때 단일해 연산자를 사용하면 오류가 발생한다.
+last_name이 Taylor인 직원이 두 명이 존재하고 salary도 각각 8600, 3200으로 각각 두개의 결과행을 전달한다. 
+하지만 단일행 연산자를 사용하기 때문에 오류가 발생한다.
+---------------------------------------------------------------------------------------------------------------------------------
+다중행 서브쿼리
+- 다중행 서브쿼리도 단일행과 거의 같다. 다중행 연산자를 사용한다.
+
+IN 여러개의 같은 값
+NOT IN 여러개의 같지 않은 값
+EXISTS 값이 있으면 참 
+ANY or 최소한 하나라도 만족 ANY(10,20) 둘중 하나
+ALL and 모두 포함해야 만족 ALL(10,20)  10,20 둘다
+
+SELECT *
+FROM employees A
+WHERE A.salary IN(
+                    SELECT MIN(salary)
+                    FROM employees
+                    GROUP BY department_id
+                    );
+다중행 서브쿼리이므로 등호=연산자를 사용하지 않고 다중행 연산자인 IN을 사용했다.
+메인쿼리에서는 다중행의 salary값을 결과갑시자 조건식으로 받아 일치하는 직원을 출력한다.
+--------------------------------------------------------------------------------------------------------------------------------
+다중열 서브쿼리
+- 메인쿼리와 서브쿼리를 비교하는 where 조건식에서 비교되는 열이 여러개일때 사용하는 서브쿼리이다.
+
+ex) employee테이블에서 job_id별로 가장 낮은 salary가 얼마인지 찾아보고 해당하는 직원이 누구인지 조회
+
+SELECT *
+FROM employees A
+WHERE (A.job_id, A.salary) IN(
+                    SELECT job_id, MIN(salary)
+                    FROM employees
+                    GROUP BY job_id
+                    )
+ORDER BY A.salary DESC;
+그룹함수 MIN을 사용하여 job_id별로 최저 salary를 찾아냈고 
+그 값을 다중 열 서브쿼리를 통해 메인쿼리에 전달하여 해당 직원이 누구인지 찾아냈다.
+
+
+FROM 절 서브쿼리
+- FROM 절에 테이블이름을 기술하여 해당 테이블의 데이터 값을 불러왔다. 
+FROM절에 서브쿼리를 사용하면 SELECT문을 테이블처럼 사용할 수 있다. 이를통해 SELECT문을 좀 더 간결하고 효율적으로 작성
+ex)직원중에서 department_name이 IT인 직원의 정보를 출력
+
+SELECT *
+FROM employees A,(
+                    SELECT dapartment_id
+                    FROM departments
+                    WHERE department_name='IT'
+                    ) B
+WHERE A.department_id = B.department_id;
+
+
+=====================================================================================
+c reate
+r ead
+u pdate
+d rop(delete)
+
+데이터 삽입/갱신/삭제
+
+데이터를 직접 조작하는 방법
+SELECT 문이 주로 데이터출력을 위해 사용되었다면 DML은 데이터를 직접 조작하는데 사용된다.
+SELECT의 데이터를 보여만 주는 기능을 넘어 직접 데이터를 삽입/갱신/삭제하게 된다.
+
+DATA MANIPULATION LANGUAGE
+데이터 조작어
+SELECT은 단지 조회하여 출력해준다.
+INSERT, UPDATE, DELETE은 직접 데이터를 수정한다. 데이터를 조작하여 저장하는 일련의 과정을 트랜잭션(TRANSACTION)이라고 한다.
+DML은 트랙잭션을 다루는 명령어이다.
+
+INSERT 테이블에 새로운 행을 삽입
+UPDATE 테이블에 이미 있는 내용 갱신
+DELETE 테이블의 행을 삭제
+----------------------------------------------------------------------------------------------------------------------------------
+INSERT 
+- 새로운 데이터 NEW DATA를 행단위 ROW로 입력한다.
+
+SELECT *
+FROM departments;
+
+INSERT 
+    INTO departments(department_id,department_name, manager_id,location_id)
+VALUES(271,'Sample_Dept',200,1700);
+
+----생략가능---
+
+INSERT 
+    INTO departments
+VALUES(271,'Sample_Dept',200,1700);
+
+열이름과 입력되는 데이터값이 일치하는지 확인하기 위해서 열이름을 모두 기술할 것을 권장
+DML명령어를 사용할 때는 테이블의 속성과 제약조건에 주의를 기울여야한다.
+
+***
+INSERT 명령어를 실행했다고 해서 데이터베이스에 영구적으로 저장되는 것은 아니다. 
+실행한 DML명령어를 최종적으로 반영하려면 COMMIT을 해야한다. 커밋하기 전까진 시행한 모든 DML은 반영되지 않는다.
+commit;
+커밋을 하지 않은 채로 데이터베이스 시스템이 비정상적으로 셧다운 되면 커밋전의 반영된 데이터는 저장되지 않는다.
+------------------------------------------------------------------------------------------------------------------------------------
+UPDATE
+- 기존의 데이터를 다른 데이터 값으로 변경할 때 사용된다. UPDATE절에 WHERE 조건절을 사용할 수 있다.
+- 기본구문 - 
+UPDATE 테이블명
+SET 열이름1 = 열이름1
+      열이름2 = 열이름2
+WHERE 조건절
+
+ex) departments테이블에 department_name이 'Sample_dept'인 행을 찾아서 
+manager_id 값을 500으로 location_id를 2000으로 변경
+UPDATE departments
+SET manager_id = 500,
+    location_id = 2000
+WHERE department_name = 'Sample_Dept';
+
+-----------------------------------------------------------------------------------------------------------------------------------
+DELETE 
+- 행 삭제 WHERE절을 사용할수 있다.
+
+DELETE FROM departments
+WHERE department_name='Sample_Dept';
+
+DML명령어들은 직접 데이터를 조작하기 때문에 사용시 신중해야만 한다.
+DML은 실행한 후 커밋을 해야 최종 적용된다. 롤백으로 되돌릴 수 있다.
+
+====================================================================================
+데이터의 무결성
+- 데이터베이스에 저장된 데이터값과 사용자가 의도한 데이터값은 일치해야한다.
+예를들면 주민번호와 같은 값은 중복된 값이 있을 수 없다. 
+중복된 주민번호값이 입력되거나 null값이 입력된다면 데이터 식별에
+큰 문제가 발생할 수도 있다. 또한 salary열의 데이터 값에 숫자가 아닌 '오천만원'문자가 입력된다면 큰 문제의 소지가 있다.
+
+데이터베이스 관리의 기본규칙이 지켜지지 않으면 큰 혼란이 올 수 있다. 규칙에 위배되지 않아야 한다.
+이것을 위해 데이터베이스 시스템은 데이터에 접근하거나 데이터를 처리할 때마다 부적절한 데이터가 입력되는지 
+검사하여 데이터의 결점없음을 유지하게된다.  -> DATA INTEGRITY
+
+개체 무결성
+- 고유해야하며 null값을 가질 수 없다.
+
+참조 무결성
+- 참조되는 외래키가 존재하면 행은 삭제될 수 없고 기본키도 변경될 수 없다.
+
+영역 무결성
+- 데이터의 형태, 범위, 유일성에 관한 제한
+
+제약조건(constraint) 정해놓은 규칙에 맞는 데이터만 입력받고 규칙에 어긋나는 데이터는 거부하여 무결성을 지키는 방법
+
+INSERT INTO departments
+VALUES (100, 'Sample_dept',200,1700);
+
+ORA-00001: unique constraint (HR.DEPT_ID_PK) violated
+첫열에는 고유한 값 unique한 값만 입력되도록 제약조건이 설정되어 있어서 이미 존재하는 100을 삽입하려고 시도하여 오류발생
+
+INSERT INTO departments
+VALUES ('', 'Sample_dept',200,1700);
+ORA-01400: cannot insert NULL into ("HR"."DEPARTMENTS"."DEPARTMENT_ID")
+null값을 넣어도 에러가 발생한다.
+
+INSERT 명령어 뿐만 아니라 UPADATE나 DELETE 명령어를 사용할 때도 제약조건의 준수 여부가 중요하다.
+무결성과 제약조건은 데이터를 정상으로 유지하기 위한 장치로 DML명령어를 사용하기 전에 확인할 필요가 있다.
+===================================================================================
+트랜잭션 transaction DML즉 삽입,갱신,삭제와 관련된 논리적인 작업을 말한다.
+데이터무결성이 보장되는 상태에서 DML작업을 완수하기 위한 기본작업단위이다.
+
+트랜잭션의 처리가 완전히 끝나지 않았을 경우에는 전혀 이루어지지 않은것과 같아야한다. (all or nothing)
+트랜잭션이 성공하면 트랜잭션의 결과를 영구적으로 보장해야한다.
+
+트랜잭션의 수행단계
+실행 -> 부분완료 -> 완료
+
+커밋 commit
+트랜잭션의 모든 미결정 데이터(부분완료)를 영구적으로 반영함으로 트랜잭션을 종료한다.(완료)
+
+롤백 rollback
+트랜잭션의 모든 미결정 데이터 변경을 포기함으로 트랜잭션을 종료한다.(되돌리기)
+
+
+DDL Data Definition Language
+- 따로 커밋하지 않아도 즉각 자동으로 반영된다.
+
+CREATE: 테이블생성
+INSERT INTO sample_product VALUES (1,'tv',to_date('140202','YYMMDD'));
+INSERT INTO sample_product VALUES (2,'washer',to_date('160202','YYMMDD'));
+INSERT INTO sample_product VALUES (3,'cleaner',to_date('170202','YYMMDD'));
+
+ALTER: 테이블수정
+- 이미 생성된 테이블에 열을 추가/삭제/변경할 수 있다. 테이블의 구조를 변경할 수 있다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
