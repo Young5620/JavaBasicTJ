@@ -9,15 +9,15 @@ import javax.naming.NamingException;
 import util.ConnectionPool;
 
 public class MemoDAO {
-	public boolean insert(String uid, String ume) 
+	public boolean insert(String una, String ume) 
 			throws NamingException, SQLException{
 		Connection conn = null; //DB연결
 		PreparedStatement stmt = null; //SQL 구문
 		
 		conn = ConnectionPool.get();
-		String sql = "INSERT INTO tbvisit(id,memo) VALUES(?,?)";
+		String sql = "INSERT INTO tbvisit(name,memo) VALUES(?,?)";
 		stmt = conn.prepareStatement(sql);
-		stmt.setString(1, uid);
+		stmt.setString(1, una);
 		stmt.setString(2, ume);
 		
 		//성공하면 숫자1 실패하면 숫자0

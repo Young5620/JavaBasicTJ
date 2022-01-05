@@ -11,6 +11,14 @@
 </head>
 <body>
 <%@ include file="/_header.jsp" %>
+<%
+	String uid = (String) session.getAttribute("id");
+	if(uid==null){
+		response.sendRedirect("/member/login.jsp");
+	}//로그인이 안되면 로그인페이지로 강제이동
+	
+	session.setAttribute("id", uid); //세션의 시간을 연장해준다.
+%>
 
 <div class="alert alert-info" role="alert">
 메인 페이지
@@ -28,14 +36,14 @@
 <%		
 		Connection conn = ConnectionPool.get();
 		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery("SELECT * FROM tbvisit");
+		ResultSet rs = stmt.executeQuery("SELECT * FROM tbvisit ORDER BY no DESC");
 		
 		while(rs.next()){
 	%>
-	<tr><td colspan=2><hr></td></tr>
-	<td><%= rs.getString("no") %></td>
-	<td><%= rs.getString("name") %></td>
-	<td colspan=2><%= rs.getString("memo") %></td>
+	<tr><td colspan=2></td></tr>
+	<td><%= rs.getString("no") %><hr></td>
+	<td><%= rs.getString("name") %><hr></td>
+	<td colspan=2><%= rs.getString("memo") %><hr></td>
 <%	
 		}
 %>

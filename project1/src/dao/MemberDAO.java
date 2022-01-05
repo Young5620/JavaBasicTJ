@@ -33,7 +33,7 @@ public class MemberDAO {
 		PreparedStatement stmt = null; //SQL 구문
 		
 		conn = ConnectionPool.get();
-		String sql = "INSERT INTO tbperson() VALUES(?,?,?,?)";
+		String sql = "INSERT INTO tbperson(id,password,name,email) VALUES(?,?,?,?)";
 		stmt = conn.prepareStatement(sql);
 		stmt.setString(1, uid);
 		stmt.setString(2, ups);
