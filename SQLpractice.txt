@@ -1,0 +1,245 @@
+address      주소정보 25개
+customer    고객정보 183개
+item          상품정보 10개
+order_info   주문정보 391개
+reservation  예약/취소 정보 396개
+
+고민
+서울지역, 패밀리레스토랑지점
+주로 오프라인 위주예약 판매
+매출을 어떻게 올릴까
+
+- 서울 곳곳에 여러개 음식점 운영
+- 현재까지는 오프라인 주로 가족고객위주의 매출
+- 온라인 예약 시스템.온라인 전용 메뉴 기획
+- 서울 모든 지점에서 서비스
+2017.6. ~ 2017.12.
+
+
+테이블들간의 관계
+- 온라인 예약 매출 시스템 DB에는 
+고객정보 customer 
+주소정보 address 
+예약정보 reservation 
+주문정보 order_info 
+상품정보 item으로 총 5개가 존재한다.
+
+- 주소는 고객을 여러건 갖는다. 주소가 없어도 고객은 존재할 수 있다.
+- 고객은 예약을 여러건 갖는다. 
+고객이 없이는 예약은 존재할 수 없다. = 한명의 고객은 예약을 여러건 가질 수 있고 예약할 때는 customer_id가 필수이다.
+- 예약은 주문을 여러건 갖는다. 예약정보가 없어도 주문정보는 존재할 수 있다. reserv_no는 당일 예약에 대해 순차적으로 생성
+- 상품주문은 여러건 갖는다. 상품이 없으면 주문은 존재할 수 없다. = 주문은 item_id를 필수로 갖는다. 
+주문정보는 주문이 완료된 경우에만 생성된다고 가정한다.
+
+
+고객정보
+예약정보
+주문정보
+주문1 - 상품(order_no - item_id)
+주문2 - 상품(order_no - item_id)
+
+===========================
+매출분석
+1. 전체상품의 주문완료 건(count)
+   - 총매출(sum)
+   - 평균매출(avg)
+   - 최고매출(max)
+   - 최저매출(min)
+
+예약테이블의 reserv_no 주문테이블의 reserv_no
+SELECT reserv_no
+
+FROM reservation
+
+
+
+전체 주문 건은 391건이고 총 매출은 24957000원이다. 평균매출은 63828원 최고매출은 552000원 최저매출은 6000원이다.
+평균매출이 최고와 최저매출과 꽤 많은 차이가 나는 것을 볼 수 있다. 다양한 패턴의 고객이 분포할 것으로 보인다.
+
+가장먼저 알고 싶은 것은 '온라인 전용상품이 얼마나 많이 팔렸느냐'이다. 임원진을 설득하려면 근거각 필요하다.
+객관적인 결과를 통해 본인의 주장의 근거로 삼아야한다.
+
+->전체 판매량 중에 온라인 전용상품의 판매량이 어느정도 인지 파악해보자
+
+전체 상품의 총 판매량 총 매출액 전용상품의 판매량 매출액을 알아보자
+item_id가 M0001인 제품이 전용상품
+SELECT 
+    COUNT(*) 전체주문건,
+    SUM(B.sales) 총매출액,
+    SUM(DECODE(B.item_id,'M0001',B.sales,0)) 전용상품매출,
+    SUM(DECODE(B.item_id,'M0001',1,0)) 전용상품판매량
+FROM reservation A, order_info B
+WHERE A.reserv_no = B.reserv_no;
+
+전체주문건        총매출액	전용상품매출	전용상품판매량
+391	          24957000	  5808000	59
+
+총 판매량 : 391건
+총 매출 : 24957000원
+
+->전체 판매량이 391건인데 그중 59건이 전용상품 판매량과는 약 15%를 차지하고 있고 매출은 약 20%를 차지하고 있다.
+상품개수 대비 매출의 상대값으로 생각해보면 매우 높은 수치이다.
+
+각 상품별로 매출을 비교해보자.
+각 상품별 전체 매출액을 내림차순으로 출력해보자
+
+SELECT 
+    C.item_id 상품아이디,
+    C.product_name 상품이름,
+    SUM(B.sales) 상품매출
+FROM reservation A, order_info B, item C
+WHERE A.reserv_no = B.reserv_no
+AND B.item_id = C.item_id
+GROUP BY C.item_id, C.product_name
+ORDER BY SUM(B.sales) DESC;
+
+->전용상품이 M0001이 두번째로 많이 팔렸다는것은 놀라운일이다. 온라인으로만 주문가능한 상품이 주목할 만한 결과를 보여주고 있다.
+다르게 표현한다면 온라인 상에도 고객이 많이 존재한다고 볼 수 있다.
+
+월별 제품별 매출 파악
+
+SELECT 
+    SUBSTR(A.reserv_date,1,6) 매출월,
+    SUM(DECODE(B.item_id,'M0001',B.sales,0)) M0001,
+    SUM(DECODE(B.item_id,'M0002',B.sales,0)) M0002,
+    SUM(DECODE(B.item_id,'M0003',B.sales,0)) M0003,
+    SUM(DECODE(B.item_id,'M0004',B.sales,0)) M0004,
+    SUM(DECODE(B.item_id,'M0005',B.sales,0)) M0005,
+    SUM(DECODE(B.item_id,'M0006',B.sales,0)) M0006,
+    SUM(DECODE(B.item_id,'M0007',B.sales,0)) M0007,
+    SUM(DECODE(B.item_id,'M0008',B.sales,0)) M0008,
+    SUM(DECODE(B.item_id,'M0009',B.sales,0)) M0009,
+    SUM(DECODE(B.item_id,'M0010',B.sales,0)) M0010
+FROM reservation A, order_info B
+WHERE A.reserv_no = B.reserv_no
+GROUP BY SUBSTR(A.reserv_date,1,6)
+ORDER BY SUBSTR(A.reserv_date,1,6);
+
+->11월과 12월이 유난히 매출이 높은 것을 볼 수 있다. 연말이면 가족, 연인들이 레스토랑에서 스테이크를 많이 주문한 것으로
+보인다. 전용상품도 스테이크가 포함이 된 제품이라서 많은 판매량을 나타내고 있다.
+
+매출월 총매출 전용상품매출
+SELECT 
+    SUBSTR(A.reserv_date,1,6) 매출월,
+    SUM(B.sales) 총매출,
+    SUM(DECODE(B.item_id,'M0001',B.sales,0)) 전용상품매출
+FROM reservation A, order_info B
+WHERE A.reserv_no = B.reserv_no
+GROUP BY SUBSTR(A.reserv_date,1,6)
+ORDER BY SUBSTR(A.reserv_date,1,6);
+
+
+매출월 총매출 전용상품 매출기여율
+SELECT 
+    SUBSTR(A.reserv_date,1,6) 매출월,
+    SUM(B.sales) 총매출,
+    SUM(DECODE(B.item_id,'M0001',B.sales,0)) 전용상품매출,
+    round(SUM(DECODE(B.item_id,'M0001',B.sales,0))/SUM(B.sales)*100,2) 매출기여율
+FROM reservation A, order_info B
+WHERE A.reserv_no = B.reserv_no
+GROUP BY SUBSTR(A.reserv_date,1,6)
+ORDER BY SUBSTR(A.reserv_date,1,6);
+->전용상품판매 시작부터 높은 기요도를 보이다가 9월부터 11월까지 약간줄어드는 양상을 볼 수 있다.
+그러다가 오히려 12월에는 월등히 높아진 것을 확인할 수 있다. 전체매출이 2배가량 오른동안 전용상품은 
+3~4배 사이로 늘었다.
+전용상품은 연말 시즌과 관련이 밀접한 것으로 생각된다.
+
+예약건수, 예약취소 건수를 추가해보자
+매출월 총매출 전용상품 매출기여율 총예약건 예약완료건 예약취소건
+SELECT 
+    SUBSTR(A.reserv_date,1,6) 매출월,
+    SUM(B.sales) 총매출,
+    SUM(DECODE(B.item_id,'M0001',B.sales,0)) 전용상품매출,
+    round(SUM(DECODE(B.item_id,'M0001',B.sales,0))/SUM(B.sales)*100,2) 매출기여율,
+    COUNT(A.cancel) 총예약건,
+    SUM(DECODE(A.cancel,'N',1,0)) 예약완료건,
+    SUM(DECODE(A.cancel,'Y',1,0)) 예약취소건
+
+FROM reservation A, order_info B
+WHERE A.reserv_no = B.reserv_no
+GROUP BY SUBSTR(A.reserv_date,1,6)
+ORDER BY SUBSTR(A.reserv_date,1,6);
+->심각한 오류. 예약테이블은 주문정보를 갖지 않을 수 있다. 즉, 예약테이블에 reserv_no가 있다해도
+order_info에는 reserv_no가 없을 수 있다.
+온라인예약이 취소되면 방문하지 않는다. 따라서 주문정보도 없다.
+그러면 예약취소건까지 모두 출력하려면 외부조인outer join을 사용해야한다. 
+데이터가 부족한 쪽 주문정보에 외부조인()을 넣어주면 조건이 맞지않는 (취소건)도 조인되어 처리된다.
+SELECT 
+    SUBSTR(A.reserv_date,1,6) 매출월,
+    SUM(B.sales) 총매출,
+    SUM(DECODE(B.item_id,'M0001',B.sales,0)) 전용상품매출,
+    round(SUM(DECODE(B.item_id,'M0001',B.sales,0))/SUM(B.sales)*100,2) 매출기여율,
+    COUNT(A.cancel) 총예약건,
+    SUM(DECODE(A.cancel,'N',1,0)) 예약완료건,
+    SUM(DECODE(A.cancel,'Y',1,0)) 예약취소건
+
+FROM reservation A, order_info B
+WHERE A.reserv_no = B.reserv_no(+)
+GROUP BY SUBSTR(A.reserv_date,1,6)
+ORDER BY SUBSTR(A.reserv_date,1,6);
+
+
+총 매출대비 전용상품의 판매율, 총 예약건 대비 예약취소율을 추가해보자
+SELECT 
+    SUBSTR(A.reserv_date,1,6) 매출월,
+    SUM(B.sales) 총매출,
+    SUM(B.sales)-SUM(DECODE(B.item_id,'M0001',B.sales,0)) 전용상품외매출,
+    SUM(DECODE(B.item_id,'M0001',B.sales,0)) 전용상품매출,
+    round(SUM(DECODE(B.item_id,'M0001',B.sales,0))/SUM(B.sales)*100,1) || '%' 전용상품판매율,
+    COUNT(A.cancel) 총예약건,
+    SUM(DECODE(A.cancel,'N',1,0)) 예약완료건,
+    SUM(DECODE(A.cancel,'Y',1,0)) 예약취소건,
+    round(SUM(DECODE(A.cancel,'Y',1,0))/COUNT(A.cancel)*100,1)||'%' 예약취소율
+FROM reservation A, order_info B
+WHERE A.reserv_no = B.reserv_no(+)
+GROUP BY SUBSTR(A.reserv_date,1,6)
+ORDER BY SUBSTR(A.reserv_date,1,6);
+
+
+월별 전용상품 매출액을 일요일부터 월요일까지 구분해서 출력
+
+SELECT 
+    SUBSTR(reserv_date,1,6) 날짜,
+    A.product_name 상품명,
+    SUM(DECODE(A.WEEK,'1',A.sales,0)) 일요일,
+    SUM(DECODE(A.WEEK,'2',A.sales,0)) 월요일,
+    SUM(DECODE(A.WEEK,'3',A.sales,0)) 화요일,
+    SUM(DECODE(A.WEEK,'4',A.sales,0)) 수요일,
+    SUM(DECODE(A.WEEK,'5',A.sales,0)) 목요일,
+    SUM(DECODE(A.WEEK,'6',A.sales,0)) 금요일,
+    SUM(DECODE(A.WEEK,'7',A.sales,0)) 토요일
+FROM (
+    SELECT 
+        A.reserv_date, 
+        C.product_name,
+        TO_CHAR(TO_DATE(A.reserv_date,'YYYYMMDD'),'d') WEEK,
+        B.sales
+    FROM reservation A, order_info B, item C
+    WHERE A.reserv_no = B.reserv_no(+)
+    AND B.item_id = C.item_id
+    AND B.item_id = 'M0001') A
+GROUP BY SUBSTR(reserv_date,1,6), A.product_name
+ORDER BY SUBSTR(reserv_date,1,6) DESC;
+
+
+월별 전용상품 매출1위부터 3위까지 지점이 어디인지 확인
+
+SELECT *
+FROM(
+    SELECT SUBSTR(A.reserv_date,1,6) 매출월,
+        A.branch 지점,
+        SUM(B.sales) 전용상품매출,
+        RANK() OVER(PARTITION BY SUBSTR(A.reserv_date,1,6)
+    ORDER BY SUM(B.sales) DESC) 지점순위
+    FROM reservation A, order_info B
+    WHERE A.reserv_no = B.reserv_no
+    AND B.item_id = 'M0001'
+    GROUP BY SUBSTR(A.reserv_date,1,6), A.branch
+    ORDER BY SUBSTR(A.reserv_date,1,6)) A
+WHERE A.지점순위 <=3;
+
+
+
+
+
+
