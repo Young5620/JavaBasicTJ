@@ -13,11 +13,13 @@
 <%@ include file="/_header.jsp" %>
 <%
 	String uid = (String) session.getAttribute("id");
+	String una = (String) session.getAttribute("name");
 	if(uid==null){
 		response.sendRedirect("/member/login.jsp");
 	}//로그인이 안되면 로그인페이지로 강제이동
 	
 	session.setAttribute("id", uid); //세션의 시간을 연장해준다.
+	session.setAttribute("name", una);
 %>
 
 <div class="alert alert-info" role="alert">
