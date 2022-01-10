@@ -5,9 +5,9 @@
 <%
 
 	String ume = request.getParameter("memo");
-	String sid = (String) session.getAttribute("id");
+	String sna = (String) session.getAttribute("name");
 	
 	MemoDAO dao = new MemoDAO();
 	
-	if(dao.insert(sid,ume)) response.sendRedirect("/main.jsp");
+	if(dao.insert(sna,ume)) response.sendRedirect("/main.jsp");
 %>

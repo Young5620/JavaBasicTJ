@@ -944,7 +944,7 @@ WHERE TO_CHAR(hiredate,'YYYY') = '1981';
 다른표현
 SELECT 
     ename, 
-    EXTRACT(year from hiredate) as 입사날,
+    EXTRACT(year from hiredate) as 입사년도,
     EXTRACT(month from hiredate) as 입사달,
     EXTRACT(day from hiredate) as 입사날
 FROM emp;
