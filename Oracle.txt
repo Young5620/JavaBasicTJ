@@ -899,6 +899,105 @@ INSERT INTO sample_product VALUES (3,'cleaner',to_date('170202','YYMMDD'));
 
 ALTER: 테이블수정
 - 이미 생성된 테이블에 열을 추가/삭제/변경할 수 있다. 테이블의 구조를 변경할 수 있다.
+==================================================================================
+MONTHS_BETWEEN(sysdate,hiredate) 
+-> 날짜의 차이 계산(최신날짜, 예전날짜)
+*sysdate : 오늘 날짜
+
+SELECT ADD_MONTHS(TO_DATE('2019-05-01','RRRR-MM-DD'),10) 
+-> 10개월 후 날짜
+
+SELECT '2019/05/01' AS 날짜, NEXT_DAY('2019/05/01','MONDAY')
+-> 특정 날짜 뒤에 오는 요일의 날짜
+
+SELECT SYSDATE AS 날짜, NEXT_DAY(ADD_MONTHS(SYSDATE,5),'WEDNSDAY')
+-> 5달뒤에 오는 수요일
+
+SELECT SYSDATE AS 날짜, LAST_DAY(SYSDATE), LAST_DAY(SYSDATE)-SYSDATE AS 남은일수
+-> 이번달이 몇일 남았을까
+*LAST_DAY()-30일에 끝나는지 31일에 끝나는지 알려주는 함수
+
+SELECT ename AS 이름, hiredate 입사날, TO_CHAR(hiredate,'day') 입사요일, sal 월급
+FROM emp
+WHERE ename = 'SCOTT';
+-> 이름이 SCOTT인 사원의 이름과 입사한 요일, 월급을 출력
+*TO_CHAR : 숫자형->문자형//날짜형->문자형
+	특히 날짜형은 문자로 변환하여 년 월 일 요일 등을 추출한다.
+SELECT 
+    ename AS 이름, 
+    hiredate 입사날, 
+    TO_CHAR(hiredate,'RRRR') 입사연도,
+    TO_CHAR(hiredate,'MM') 입사월,
+    TO_CHAR(hiredate,'DD') 입사일,
+    TO_CHAR(hiredate,'day') 입사요일,
+    sal 월급
+FROM emp
+WHERE ename = 'SCOTT';
+
+1981년도에 입사한 사원들의 이름과 입사일만 출력
+SELECT 
+    ename 이름, 
+    hiredate 입사날
+FROM emp
+WHERE TO_CHAR(hiredate,'YYYY') = '1981';
+
+다른표현
+SELECT 
+    ename, 
+    EXTRACT(year from hiredate) as 입사날,
+    EXTRACT(month from hiredate) as 입사달,
+    EXTRACT(day from hiredate) as 입사날
+FROM emp;
+
+숫자를 천단위로 표시
+SELECT 
+    ename, 
+    TO_CHAR(sal,'L999,999') AS 급여
+FROM emp;
+*L : 화폐기호
+=======================================================
+TO_DATE()
+81년 11월 17일에 입사한 사원의 이름과 입사일을 출력
+SELECT 
+    ename, 
+    hiredate
+FROM emp
+WHERE hiredate = TO_DATE('81/11/17','RR/MM/DD');
+=====================================================
+#형변환
+SELECT 
+    ename, 
+    sal
+FROM emp
+WHERE sal = '3000';
+문자형으로 숫자를 검색했지만 결과가 에러없이 잘 출력됐다.
+오라클이 알아서 암묵적으로 형변환을 하기 때문에 에러가 발생하지 않고 출력된 것
+문자형을 숫자형으로 자동 변경하였다.
+SELECT ename, sal
+    FROM emp32
+    WHERE sal = 3000;
+오라클이 숫자로 자동변환하여 잘 검색하고 있다.
+SELECT ename, sal
+    FROM emp32
+    WHERE TO_NUMBER(sal) = 3000;
+명시적인 형변환
+=========================================================
+NVL / NVL2
+SELECT ename, comm,
+    NVL(comm,0)
+FROM emp;
+실제로 0으로 바뀐 것이 아니라 0으로 보여지게만 바꾼 것
+SELECT ename, comm,
+    NVL(comm,0),
+    sal+comm,
+    sal+NVL(comm,0)
+FROM emp;
+
+#NVL2 : null이 아니면 계산하고 null이면 0
+SELECT ename, comm, sal,
+    NVL2(comm,sal+comm,sal),
+    sal+comm
+FROM emp;
 
 
 
