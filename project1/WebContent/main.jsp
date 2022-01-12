@@ -38,7 +38,7 @@
 <%		
 		Connection conn = ConnectionPool.get();
 		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery("SELECT * FROM tbvisit ORDER BY no DESC");
+		ResultSet rs = stmt.executeQuery("SELECT * FROM tbvisit,tbperson ORDER BY no DESC");
 		
 		while(rs.next()){
 	%>

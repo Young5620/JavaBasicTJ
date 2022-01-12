@@ -1,0 +1,52 @@
+1. 테이블작성 시 
+ PRAMARY KEY : 테이블의 대표
+ - 기본키, 식별자 역할, 기본키 중복값을 허용하지 않는다. null값도 가질 수 없다.(주민등록번호)
+ FOREIGN KEY : 다른 테이블과 연결
+ - 외래키, 테이블 간에 서로 연결관계를 정의하는 키
+ UNIQUE KEY
+ - 행에서 유일한 값을 갖는 데이터 값으로 구성된 열이다. 중복값이 없는 유일한 값을 갖지만 PRIMARY KEY가 아닌
+   데이터값이 존재한다.(부반장)
+
+2. 
+DDL : CREATE/ALTER/DROP/RENAME
+DML : (SELECT)/INSERT/UPDATE/DELETE
+dml명령어들은 직접 데이터를 조작하기 때문에 사용시 신중해야한다. 실행한 후 커밋을 해야 최종적용된다. 롤백으로 되돌릴 수 있다.
+차이점/대표적인 애들
+
+3.
+UPDATE 구문
+
+4.
+SHOW TABLES; 테이블의 전체를 출력<-SQL
+SHOW DATABASES; 테이블 목록<-HADI
+SELECT * FROM tables; <- 테이블의 내용전체를 보기
+SELECT name FROM tables; <- tables안에 name의 값들을 보여준다.
+
+5.
+데이터가 수정되었으면 commit을 해준다. = 트랙잭션을 정상적으로 완료하기 위한 명령어
+
+CREATE TABLE professor
+id(primary key),name,tel
+lee-leesuyoung-221
+yoon-yoonjonshin-222
+
+학원관리 앱을 구축하려고 한다. 요구사항을 분석하여 테이블을 생성하고 데이터를 넣어 무결성을 검증하시오
+1. 필요한 테이블의 필드와 속성을 정의
+2. 예시 도서정보테이블(id,책이름, 수량, 대여정보) id가 primarykey 책이름 수량은 null허용안함
+3. 직접 구현
+
+직원 - 직원id, 이름, 번호, 이메일, 직책, 교실, 입사날짜, 월급
+	id: primary key / 교실: foreign key / 이름 번호 입사날짜는 null허용안함
+	입사날짜 -날짜형 / 월급: -숫자형 / 나머지 모두 varchar
+학원생 - 학생id, 이름, 번호, 이메일, 등록날짜, 교실, 등록금
+	id: primary key / 교실: foreign key / 나머지 모두 null허용안함
+	등록날짜 -날짜형 / 등록금 -숫자형 / 나머진 모두 varchar  
+출결 - 학생id, 날짜, 출결여부
+CREATE TABLE `employee`(
+	emp_id VARCHAR(10)
+	empname VARCHAR(10)
+	phone VARCHAR(10)
+	email VARCHAR(10)
+	depature VARCHAR(10)
+	class VARCHAR(10)
+	hiredate DATE
